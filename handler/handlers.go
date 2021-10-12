@@ -78,7 +78,7 @@ func LogInHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWri
 			return
 		}
 		log.Println(userRequest)
-		err = auth.LoginUser(userRequest, db, sender)
+		err = auth.LoginUser(userRequest, db)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(401)
