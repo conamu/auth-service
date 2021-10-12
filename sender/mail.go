@@ -45,11 +45,15 @@ func (s *Sender) SendWelcome(username, email, subject string) error {
 	message := fmt.Sprintf(s.WelcomeMail, username)
 	return send(message, url)
 }
-func (s *Sender) SendSignup(username string) error {
-	return nil
+func (s *Sender) SendSignup(username, email, subject string) error {
+	url := fmt.Sprintf(s.BaseUrl, email, subject)
+	message := fmt.Sprintf(s.WelcomeMail, username)
+	return send(message, url)
 }
-func (s *Sender) SendPasswordReset(username, resetUrl string) error {
-	return nil
+func (s *Sender) SendPasswordReset(username, resetUrl, email, subject string) error {
+	url := fmt.Sprintf(s.BaseUrl, email, subject)
+	message := fmt.Sprintf(s.PasswordResetMail, username, resetUrl)
+	return send(message, url)
 }
 
 func send(message, url string) error {

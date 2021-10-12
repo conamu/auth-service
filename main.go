@@ -18,12 +18,7 @@ func NewServer() *server {
 
 func main() {
 	godotenv.Load()
-	to := "constantin.amundsen@gmail.com"
-	subject := "Testing"
 
 	server := NewServer()
-	if err := server.sender.SendWelcome("Erdem", to, subject); err != nil {
-		fmt.Println(err.Error())
-	}
 
 }
