@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func NewSender() ISender {
+func NewSender() (ISender, error) {
 	url := fmt.Sprintf("smtp://%s:%s@%s:%s/?from=%s&to=%s&fromName=%s&title=%s&usehtml=%s",
 		os.Getenv("username"),
 		os.Getenv("password"),
@@ -19,17 +19,17 @@ func NewSender() ISender {
 		"%s",
 		os.Getenv("useHtml"))
 
-	welcomeMailfile, err := ioutil.ReadFile("mail-templates/welcome-email.html")
+	welcomeMailfile, err := ioutil.ReadFile("./mail-templates/welcome-email.html")
 	if err != nil {
-		fmt.Println(err.Error())
+		return nil, err
 	}
-	signupMailfile, err := ioutil.ReadFile("mail-templates/signup-email.html")
+	signupMailfile, err := ioutil.ReadFile("./mail-templates/signup-email.html")
 	if err != nil {
-		fmt.Println(err.Error())
+		return nil, err
 	}
-	passwordMailfile, err := ioutil.ReadFile("mail-templates/password-reset-email.html")
+	passwordMailfile, err := ioutil.ReadFile("./mail-templates/password-reset-email.html")
 	if err != nil {
-		fmt.Println(err.Error())
+		return nil, err
 	}
 
 	return &Sender{
@@ -37,7 +37,7 @@ func NewSender() ISender {
 		WelcomeMail:       string(welcomeMailfile),
 		SignupMail:        string(signupMailfile),
 		PasswordResetMail: string(passwordMailfile),
-	}
+	}, nil
 }
 
 func (s *Sender) SendWelcome(username, email, subject string) error {

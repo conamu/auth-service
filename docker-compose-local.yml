@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+
+  karl-bock-auth-service:
+    image: kb-auth:local
+    container_name: kb-auth-service
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - friendzone
+
+  karl-bock-auth-service-db:
+    image: mysql:8.0
+    container_name: kb-auth-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: einstein
+      MYSQL_DATABASE: auth
+      MYSQL_USER: kb-auth
+      MYSQL_PASSWORD: kb-auth
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - friendzone
+
+
+networks:
+  friendzone:
+    external: false

@@ -4,6 +4,7 @@ import (
 	"auth-service/sender"
 	"fmt"
 	"github.com/joho/godotenv"
+	"os"
 )
 
 type server struct {
@@ -11,14 +12,18 @@ type server struct {
 }
 
 func NewServer() *server {
+	send, err := sender.NewSender()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	return &server{
-		sender: sender.NewSender(),
+		sender: send,
 	}
 }
 
 func main() {
 	godotenv.Load()
 
-	server := NewServer()
+	authServer := NewServer()
 
 }
