@@ -1,4 +1,4 @@
-package handler
+package auth
 
 type UserRequest struct {
 	User     string `json:"user"`

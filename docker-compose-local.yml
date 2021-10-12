@@ -6,6 +6,11 @@ services:
     image: kb-auth:local
     container_name: kb-auth-service
     restart: always
+    hostname: auth-service
+    depends_on:
+      - karl-bock-auth-service-db
+    ports:
+      - 8080:8080
     security_opt:
       - no-new-privileges:true
     networks:
@@ -15,6 +20,9 @@ services:
     image: mysql:8.0
     container_name: kb-auth-db
     restart: always
+    hostname: auth-service-db
+    ports:
+      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: einstein
       MYSQL_DATABASE: auth

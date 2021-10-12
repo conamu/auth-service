@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"auth-service/auth"
 	"auth-service/sender"
 	"database/sql"
 	"encoding/json"
@@ -13,7 +14,7 @@ func SignUpHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Signup endpoint hit!")
 		if r.Method != "POST" {
-			w.WriteHeader(404)
+			w.WriteHeader(405)
 			return
 		}
 		body, err := ioutil.ReadAll(r.Body)
@@ -26,7 +27,7 @@ func SignUpHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 			w.WriteHeader(400)
 			return
 		}
-		userRequest := &UserRequest{}
+		userRequest := &auth.UserRequest{}
 		err = json.Unmarshal(body, userRequest)
 		if err != nil {
 			w.WriteHeader(500)
@@ -39,7 +40,12 @@ func SignUpHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 		}
 		log.Println(userRequest)
 
-		w.WriteHeader(200)
+		err = auth.RegisterUser(userRequest, db, sender)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(401)
+		}
+		w.WriteHeader(201)
 	}
 }
 
@@ -47,7 +53,7 @@ func LogInHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWri
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Login endpoint hit!")
 		if r.Method != "POST" {
-			w.WriteHeader(404)
+			w.WriteHeader(405)
 			return
 		}
 		body, err := ioutil.ReadAll(r.Body)
@@ -60,7 +66,7 @@ func LogInHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWri
 			w.WriteHeader(400)
 			return
 		}
-		userRequest := &UserRequest{}
+		userRequest := &auth.UserRequest{}
 		err = json.Unmarshal(body, userRequest)
 		if err != nil {
 			w.WriteHeader(500)
@@ -72,6 +78,11 @@ func LogInHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWri
 			return
 		}
 		log.Println(userRequest)
+		err = auth.LoginUser(userRequest, db, sender)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(401)
+		}
 
 		w.WriteHeader(200)
 	}
@@ -81,7 +92,7 @@ func EditUserHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.Response
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Edit user endpoint hit!")
 		if r.Method != "POST" {
-			w.WriteHeader(404)
+			w.WriteHeader(405)
 			return
 		}
 		body, err := ioutil.ReadAll(r.Body)
@@ -94,7 +105,7 @@ func EditUserHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.Response
 			w.WriteHeader(400)
 			return
 		}
-		userRegister := &UserRequest{}
+		userRegister := &auth.UserRequest{}
 		err = json.Unmarshal(body, userRegister)
 		if err != nil {
 			w.WriteHeader(500)
@@ -107,7 +118,19 @@ func EditUserHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.Response
 		}
 		log.Println(userRegister)
 
-		w.WriteHeader(200)
+		w.WriteHeader(202)
+	}
+}
+
+func ResetPasswordFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Edit user endpoint hit!")
+		if r.Method != "GET" {
+			w.WriteHeader(405)
+			return
+		}
+
+		w.WriteHeader(202)
 	}
 }
 
@@ -115,7 +138,7 @@ func PingHandlerFunc() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Ping endpoint hit!")
 		if r.Method != "GET" {
-			w.WriteHeader(404)
+			w.WriteHeader(405)
 			return
 		}
 		w.WriteHeader(200)
