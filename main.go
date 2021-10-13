@@ -47,6 +47,7 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+
 	db, err := sql.Open("mysql", dbConfig.FormatDSN())
 	_, err = db.Exec(userDbInitQuery)
 	_, err = db.Exec(passwordResetDBInitQuery)
@@ -56,19 +57,31 @@ func main() {
 	authServer := NewServer(send, router, db)
 
 	// User Registration - Create user in DB
-	authServer.router.HandleFunc("/register", handler.SignUpHandlerFunc(authServer.db, authServer.sender))
+	authServer.router.HandleFunc("/register", checkAuthHeader(handler.SignUpHandlerFunc(authServer.db, authServer.sender)))
 	// User Authentication - Create PASETO Token and send back if email and password match
-	authServer.router.HandleFunc("/login", handler.LogInHandlerFunc(authServer.db))
+	authServer.router.HandleFunc("/login", checkAuthHeader(handler.LogInHandlerFunc(authServer.db)))
 	// Token validation for frontend Return 200 OK if PASETO valid
-	authServer.router.HandleFunc("/validate", handler.ValidateHandlerFunc())
+	authServer.router.HandleFunc("/validate", checkAuthHeader(handler.ValidateHandlerFunc()))
 	// Submit a password reset for an email
-	authServer.router.HandleFunc("/resetpassword", handler.ResetPasswordFunc(authServer.db, authServer.sender))
+	authServer.router.HandleFunc("/resetpassword", checkAuthHeader(handler.ResetPasswordFunc(authServer.db, authServer.sender)))
 	// Password reset execution
-	authServer.router.HandleFunc("/reset", handler.PerformPasswordResetFunc(authServer.db, authServer.sender))
+	authServer.router.HandleFunc("/reset", checkAuthHeader(handler.PerformPasswordResetFunc(authServer.db, authServer.sender)))
 	// Ping - sends 200 OK
 	authServer.router.HandleFunc("/ping", handler.PingHandlerFunc())
 
 	log.Println("KB-Auth-Service listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", authServer.router))
 	defer db.Close()
+}
+
+func checkAuthHeader(next http.HandlerFunc) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		header := req.Header.Get("X-KBU-Auth")
+		if header != "abcdefghijklmnopqrstuvwxyz" {
+			res.WriteHeader(401)
+			log.Println("Auth header does not match!")
+			return
+		}
+		next(res, req)
+	}
 }
