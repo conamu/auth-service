@@ -1,0 +1,32 @@
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+stages:
+  - build
+
+services:
+  - docker:dind
+
+build:
+  stage: build
+  only:
+    - tags
+  tags:
+    - docker
+  script:
+    - docker info
+    - echo $'\nusername='$USERNAME >> .env
+    - echo $'\npassword='$PASSWORD >> .env
+    - echo $'\nfrom='$FROM >> .env
+    - echo $'\nfromName='$FROMNAME >> .env
+    - echo $'\nhost='$HOST >> .env
+    - echo $'\nuseHtml='$USEHTML >> .env
+    - echo $'\nport='$PORT >> .env
+    - echo "Logging in to Docker registry..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "Building Docker Image..."
+    - docker build --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG .
+    - echo "Pushing Image to Registry!"
+    - docker push $CI_REGISTRY_IMAGE:latest
+
