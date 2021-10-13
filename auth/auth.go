@@ -99,6 +99,52 @@ func ResetPassword(user *UserRequest, db *sql.DB, sender sender.ISender) error {
 	return nil
 }
 
-func PerformPasswordReset(user *UserRequest, db *sql.DB, sender sender.ISender) error {
+func PerformPasswordReset(pwReset *PasswordReset, db *sql.DB, sender sender.ISender) error {
+	var (
+		resetId string
+		email   string
+		user    string
+	)
+	getResetEntryQuery := `SELECT * FROM PWRESETS WHERE RESETID=?`
+	getUserEntryQuery := `SELECT USERNAME FROM USERS WHERE EMAIL=?`
+	deleteResetIDQuery := `DELETE FROM PWRESETS WHERE RESETID=?`
+	setPasswordQuery := `UPDATE USERS SET PASSWORD=? WHERE EMAIL=?;`
+	hashedPw, err := hashing.BcryptHash([]byte(pwReset.Password))
+	if err != nil {
+		return err
+	}
+	rows, err := db.Query(getResetEntryQuery, pwReset.ResetId)
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		err = rows.Scan(&email, &resetId)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = db.Exec(deleteResetIDQuery, resetId)
+	if err != nil {
+		return err
+	}
+	rows, err = db.Query(getUserEntryQuery, email)
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		err = rows.Scan(&user)
+		if err != nil {
+			return err
+		}
+	}
+	log.Println("Update user password with email " + email)
+	_, err = db.Exec(setPasswordQuery, hashedPw, email)
+	if err != nil {
+		return err
+	}
+	err = sender.SendPasswordWasReset(user, email, "Password Reset")
+	if err != nil {
+		return err
+	}
 	return nil
 }

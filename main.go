@@ -14,7 +14,7 @@ import (
 )
 
 var userDbInitQuery = `CREATE TABLE IF NOT EXISTS USERS (USERNAME VARCHAR(30) NOT NULL, PASSWORD VARCHAR(120) NOT NULL, EMAIL VARCHAR(30) NOT NULL PRIMARY KEY, PERMISSION VARCHAR(10) NOT NULL);`
-var passwordResetDBInitQuery = `CREATE TABLE IF NOT EXISTS PWRESETS(USERNAME VARCHAR(30) NOT NULL PRIMARY KEY, RESETID VARCHAR(30) NOT NULL, VALID BOOL NOT NULL);`
+var passwordResetDBInitQuery = `CREATE TABLE IF NOT EXISTS PWRESETS(EMAIL VARCHAR(30) NOT NULL, RESETID VARCHAR(30) NOT NULL PRIMARY KEY);`
 
 type Server struct {
 	sender sender.ISender
@@ -57,7 +57,7 @@ func main() {
 
 	// User Registration - Create user in DB
 	authServer.router.HandleFunc("/register", handler.SignUpHandlerFunc(authServer.db, authServer.sender))
-	// User Authentication - Create PASETO Token and send back
+	// User Authentication - Create PASETO Token and send back if email and password match
 	authServer.router.HandleFunc("/login", handler.LogInHandlerFunc(authServer.db))
 	// Token validation for frontend Return 200 OK if PASETO valid
 	authServer.router.HandleFunc("/validate", handler.ValidateHandlerFunc())
@@ -66,7 +66,7 @@ func main() {
 	// Submit a password reset for an email
 	authServer.router.HandleFunc("/resetpassword", handler.ResetPasswordFunc(authServer.db, authServer.sender))
 	// Password reset execution
-	authServer.router.HandleFunc("/reset/:token", handler.PerformPasswordResetFunc(authServer.db, authServer.sender))
+	authServer.router.HandleFunc("/reset", handler.PerformPasswordResetFunc(authServer.db, authServer.sender))
 	// Ping - sends 200 OK
 	authServer.router.HandleFunc("/ping", handler.PingHandlerFunc())
 

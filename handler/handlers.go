@@ -174,17 +174,35 @@ func ResetPasswordFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 
 func PerformPasswordResetFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Edit user endpoint hit!")
+		log.Println("PerformPasswordReset endpoint hit!")
 		if r.Method != "POST" {
 			w.WriteHeader(405)
 			return
 		}
-		user := &auth.UserRequest{}
-
-		if err := auth.PerformPasswordReset(user, db, sender); err != nil {
-
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(400)
 		}
-		w.WriteHeader(202)
+		keys, ok := r.URL.Query()["resetId"]
+		if !ok || len(keys[0]) < 1 {
+			log.Println("Url Param 'resetId is missing'")
+			w.WriteHeader(400)
+			return
+		}
+		resetId := keys[0]
+		pwResetRequest := &auth.PasswordReset{}
+		err = json.Unmarshal(body, pwResetRequest)
+		if err != nil {
+			w.WriteHeader(500)
+		}
+		log.Println("Using rest id: " + resetId)
+		pwResetRequest.ResetId = resetId
+		if err := auth.PerformPasswordReset(pwResetRequest, db, sender); err != nil {
+			w.WriteHeader(500)
+			log.Println(err.Error())
+			return
+		}
+		w.WriteHeader(200)
 	}
 }
 

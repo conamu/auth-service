@@ -31,12 +31,17 @@ func NewSender() (ISender, error) {
 	if err != nil {
 		return nil, err
 	}
+	passwordWasRestMailfile, err := ioutil.ReadFile("./mail-templates/password-was-reset-email.html")
+	if err != nil {
+		return nil, err
+	}
 
 	return &Sender{
-		BaseUrl:           url,
-		WelcomeMail:       string(welcomeMailfile),
-		SignupMail:        string(signupMailfile),
-		PasswordResetMail: string(passwordMailfile),
+		BaseUrl:              url,
+		WelcomeMail:          string(welcomeMailfile),
+		SignupMail:           string(signupMailfile),
+		PasswordResetMail:    string(passwordMailfile),
+		PasswordWasResetMail: string(passwordWasRestMailfile),
 	}, nil
 }
 
@@ -53,6 +58,11 @@ func (s *Sender) SendSignup(username, email, subject string) error {
 func (s *Sender) SendPasswordReset(username, resetUrl, email, subject string) error {
 	url := fmt.Sprintf(s.BaseUrl, email, subject)
 	message := fmt.Sprintf(s.PasswordResetMail, username, resetUrl)
+	return send(message, url)
+}
+func (s *Sender) SendPasswordWasReset(username, email, subject string) error {
+	url := fmt.Sprintf(s.BaseUrl, email, subject)
+	message := fmt.Sprintf(s.PasswordWasResetMail, username)
 	return send(message, url)
 }
 

@@ -9,3 +9,8 @@ type UserRequest struct {
 type ValidateRequest struct {
 	Token string `json:"token"`
 }
+
+type PasswordReset struct {
+	Password string `json:"password"`
+	ResetId  string `json:"reset_id"`
+}
