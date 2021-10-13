@@ -167,8 +167,40 @@ func ResetPasswordFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 			w.WriteHeader(405)
 			return
 		}
-
+		if r.Method != "POST" {
+			w.WriteHeader(405)
+			return
+		}
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(500)
+			log.Println(err.Error())
+			return
+		}
+		if r.ContentLength == 0 {
+			w.WriteHeader(400)
+			return
+		}
+		passwordResetRequest := &auth.PasswordResetRequest{}
+		err = json.Unmarshal(body, passwordResetRequest)
+		if err != nil {
+			w.WriteHeader(500)
+			log.Println(err.Error())
+			return
+		}
+		if passwordResetRequest == nil {
+			w.WriteHeader(400)
+			return
+		}
+		resetId, err := auth.ResetPasswordRequest(passwordResetRequest, db, sender)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(401)
+		}
+		response := &auth.PasswordResetResponse{ResetId: resetId}
+		data, err := json.MarshalIndent(response, "", " ")
 		w.WriteHeader(200)
+		w.Write(data)
 	}
 }
 

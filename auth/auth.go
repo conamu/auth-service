@@ -4,8 +4,11 @@ import (
 	"auth-service/sender"
 	"database/sql"
 	"errors"
+	"fmt"
+	"gitlab.ho-me.zone/conamu/base-tools/util"
 	"gitlab.ho-me.zone/conamu/base-tools/v2/hashing"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -89,14 +92,34 @@ func ValidateToken(token string) error {
 	return nil
 }
 
-func EditPassword(db *sql.DB, sender sender.ISender) error {
-
-	return nil
-}
-
-func ResetPassword(user *UserRequest, db *sql.DB, sender sender.ISender) error {
-
-	return nil
+func ResetPasswordRequest(pwrq *PasswordResetRequest, db *sql.DB, sender sender.ISender) (string, error) {
+	var (
+		user  string
+		email string
+	)
+	getUserQuery := `SELECT USERNAME,EMAIL FROM USERS WHERE EMAIL=?;`
+	createPwResetEntryQuery := `INSERT INTO PWRESETS (EMAIL,RESETID) VALUES (?,?)`
+	rows, err := db.Query(getUserQuery, pwrq.Email)
+	if err != nil {
+		return "", err
+	}
+	for rows.Next() {
+		err = rows.Scan(&user, &email)
+		if err != nil {
+			return "", err
+		}
+	}
+	resetId := strconv.Itoa(util.GetRandom(100000000000))
+	_, err = db.Exec(createPwResetEntryQuery, email, resetId)
+	if err != nil {
+		return "", err
+	}
+	resetUrl := fmt.Sprintf("https://murat.karl-bock.academy/reset?resetId=%s", resetId)
+	err = sender.SendPasswordReset(user, resetUrl, email, "Password Reset")
+	if err != nil {
+		return "", err
+	}
+	return resetId, nil
 }
 
 func PerformPasswordReset(pwReset *PasswordReset, db *sql.DB, sender sender.ISender) error {

@@ -12,5 +12,13 @@ type ValidateRequest struct {
 
 type PasswordReset struct {
 	Password string `json:"password"`
-	ResetId  string `json:"reset_id"`
+	ResetId  string `json:"resetId"`
+}
+
+type PasswordResetRequest struct {
+	Email string `json:"email"`
+}
+
+type PasswordResetResponse struct {
+	ResetId string `json:"resetId"`
 }
