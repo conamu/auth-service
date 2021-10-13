@@ -10,8 +10,6 @@ services:
 
 build:
   stage: build
-  only:
-    - tags
   tags:
     - docker
   script:
