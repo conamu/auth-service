@@ -11,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"time"
 )
 
 var userDbInitQuery = `CREATE TABLE IF NOT EXISTS USERS (USERNAME VARCHAR(30) NOT NULL, PASSWORD VARCHAR(120) NOT NULL, EMAIL VARCHAR(30) NOT NULL PRIMARY KEY, PERMISSION VARCHAR(10) NOT NULL);`
@@ -31,6 +32,8 @@ func NewServer(sender sender.ISender, router *mux.Router, db *sql.DB) *Server {
 }
 
 func main() {
+	time.Sleep(time.Second * 20)
+	log.Println("Waiting for DB to be up...")
 	godotenv.Load()
 	send, err := sender.NewSender()
 	if err != nil {
