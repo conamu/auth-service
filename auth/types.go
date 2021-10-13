@@ -5,3 +5,7 @@ type UserRequest struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 }
+
+type ValidateRequest struct {
+	Token string `json:"token"`
+}

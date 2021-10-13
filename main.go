@@ -55,10 +55,19 @@ func main() {
 	}
 	authServer := NewServer(send, router, db)
 
+	// User Registration - Create user in DB
 	authServer.router.HandleFunc("/register", handler.SignUpHandlerFunc(authServer.db, authServer.sender))
-	authServer.router.HandleFunc("/login", handler.LogInHandlerFunc(authServer.db, authServer.sender))
+	// User Authentication - Create PASETO Token and send back
+	authServer.router.HandleFunc("/login", handler.LogInHandlerFunc(authServer.db))
+	// Token validation for frontend Return 200 OK if PASETO valid
+	authServer.router.HandleFunc("/validate", handler.ValidateHandlerFunc())
+	// User Modification if PASETO valid
 	authServer.router.HandleFunc("/edituser", handler.EditUserHandlerFunc(authServer.db, authServer.sender))
-	authServer.router.HandleFunc("/resetpassword/", handler.ResetPasswordFunc(authServer.db, authServer.sender))
+	// Submit a password reset for an email
+	authServer.router.HandleFunc("/resetpassword", handler.ResetPasswordFunc(authServer.db, authServer.sender))
+	// Password reset execution
+	authServer.router.HandleFunc("/reset/:token", handler.PerformPasswordResetFunc(authServer.db, authServer.sender))
+	// Ping - sends 200 OK
 	authServer.router.HandleFunc("/ping", handler.PingHandlerFunc())
 
 	log.Println("KB-Auth-Service listening on port 8080")

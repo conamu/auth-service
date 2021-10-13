@@ -49,7 +49,7 @@ func SignUpHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 	}
 }
 
-func LogInHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
+func LogInHandlerFunc(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Login endpoint hit!")
 		if r.Method != "POST" {
@@ -78,12 +78,50 @@ func LogInHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWri
 			return
 		}
 		log.Println(userRequest)
-		err = auth.LoginUser(userRequest, db)
+		token, err := auth.LoginUser(userRequest, db)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(401)
 		}
+		data, err := json.MarshalIndent(&token, "", " ")
+		w.WriteHeader(200)
+		w.Write(data)
+	}
+}
 
+func ValidateHandlerFunc() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Validate endpoint hit!")
+		if r.Method != "POST" {
+			w.WriteHeader(405)
+			return
+		}
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(500)
+			log.Println(err.Error())
+			return
+		}
+		if r.ContentLength == 0 {
+			w.WriteHeader(400)
+			return
+		}
+		validationRequest := &auth.ValidateRequest{}
+		err = json.Unmarshal(body, validationRequest)
+		if err != nil {
+			w.WriteHeader(500)
+			log.Println(err.Error())
+			return
+		}
+		if validationRequest == nil {
+			w.WriteHeader(400)
+			return
+		}
+		err = auth.ValidateToken(validationRequest.Token)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(401)
+		}
 		w.WriteHeader(200)
 	}
 }
@@ -118,18 +156,34 @@ func EditUserHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.Response
 		}
 		log.Println(userRegister)
 
-		w.WriteHeader(202)
+		w.WriteHeader(200)
 	}
 }
 
 func ResetPasswordFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Edit user endpoint hit!")
-		if r.Method != "GET" {
+		if r.Method != "POST" {
 			w.WriteHeader(405)
 			return
 		}
 
+		w.WriteHeader(200)
+	}
+}
+
+func PerformPasswordResetFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Edit user endpoint hit!")
+		if r.Method != "POST" {
+			w.WriteHeader(405)
+			return
+		}
+		user := &auth.UserRequest{}
+
+		if err := auth.PerformPasswordReset(user, db, sender); err != nil {
+
+		}
 		w.WriteHeader(202)
 	}
 }
