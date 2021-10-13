@@ -61,8 +61,6 @@ func main() {
 	authServer.router.HandleFunc("/login", handler.LogInHandlerFunc(authServer.db))
 	// Token validation for frontend Return 200 OK if PASETO valid
 	authServer.router.HandleFunc("/validate", handler.ValidateHandlerFunc())
-	// User Modification if PASETO valid
-	authServer.router.HandleFunc("/edituser", handler.EditUserHandlerFunc(authServer.db, authServer.sender))
 	// Submit a password reset for an email
 	authServer.router.HandleFunc("/resetpassword", handler.ResetPasswordFunc(authServer.db, authServer.sender))
 	// Password reset execution

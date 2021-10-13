@@ -126,40 +126,6 @@ func ValidateHandlerFunc() func(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func EditUserHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Edit user endpoint hit!")
-		if r.Method != "POST" {
-			w.WriteHeader(405)
-			return
-		}
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			w.WriteHeader(500)
-			log.Println(err.Error())
-			return
-		}
-		if r.ContentLength == 0 {
-			w.WriteHeader(400)
-			return
-		}
-		userRegister := &auth.UserRequest{}
-		err = json.Unmarshal(body, userRegister)
-		if err != nil {
-			w.WriteHeader(500)
-			log.Println(err.Error())
-			return
-		}
-		if userRegister == nil {
-			w.WriteHeader(400)
-			return
-		}
-		log.Println(userRegister)
-
-		w.WriteHeader(200)
-	}
-}
-
 func ResetPasswordFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Edit user endpoint hit!")
