@@ -81,7 +81,7 @@ func checkAuthHeader(next http.HandlerFunc) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		header := req.Header.Get("X-KBU-Auth")
 		if header != "abcdefghijklmnopqrstuvwxyz" {
-			res.WriteHeader(401)
+			res.WriteHeader(403)
 			log.Println("Auth header does not match!")
 			return
 		}
