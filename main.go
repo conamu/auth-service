@@ -32,8 +32,8 @@ func NewServer(sender sender.ISender, router *mux.Router, db *sql.DB) *Server {
 }
 
 func main() {
-	time.Sleep(time.Second * 20)
 	log.Println("Waiting for DB to be up...")
+	time.Sleep(time.Second * 20)
 	godotenv.Load()
 	send, err := sender.NewSender()
 	if err != nil {
