@@ -15,6 +15,16 @@ services:
       - no-new-privileges:true
     networks:
       - friendzone
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kb-auth.service=kb-auth"
+      - "traefik.docker.network=friendzone"
+      - "traefik.tcp.routers.kb-auth.tls=true"
+      - "traefik.http.routers.kb-auth.entrypoints=websecure"
+      - "traefik.http.services.kb-auth.loadbalancer.server.port=8080"
+      - "traefik.tcp.routers.kb-auth.rule=HostSNI(`auth.karl-bock.academy`)"
+      - "traefik.http.routers.kb-auth.rule=Host(`auth.karl-bock.academy`)"
+      - "com.centurylinklabs.watchtower.enable=true"
 
   karl-bock-auth-service-db:
     image: mysql:8.0
