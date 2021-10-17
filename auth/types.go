@@ -1,9 +1,10 @@
 package auth
 
 type UserRequest struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+	User       string `json:"user"`
+	Password   string `json:"password"`
+	Email      string `json:"email"`
+	Permission string `json:"permission"`
 }
 
 type ValidateRequest struct {
@@ -21,4 +22,8 @@ type PasswordResetRequest struct {
 
 type PasswordResetResponse struct {
 	ResetId string `json:"resetId"`
+}
+
+type ValidationResponse struct {
+	Role string `json:"role"`
 }

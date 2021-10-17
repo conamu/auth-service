@@ -20,7 +20,7 @@ func RegisterUser(user *UserRequest, db *sql.DB, sender sender.ISender) error {
 	}
 
 	query := `INSERT INTO USERS (USERNAME, PASSWORD, EMAIL, PERMISSION) VALUES (?,?,?,?);`
-	_, err = db.Exec(query, user.User, hash, user.Email, "user")
+	_, err = db.Exec(query, user.User, hash, user.Email, user.Permission)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func LoginUser(user *UserRequest, db *sql.DB) (string, error) {
 		return "", err
 	}
 
-	token, err := pasetoGen.CreateToken(readUser.User, time.Hour*1)
+	token, err := pasetoGen.CreateToken(readUser.User, permission, time.Hour*1)
 	if err != nil {
 		return "", err
 	}
@@ -79,17 +79,17 @@ func LoginUser(user *UserRequest, db *sql.DB) (string, error) {
 	return token, nil
 }
 
-func ValidateToken(token string) error {
+func ValidateToken(token string) (string, error) {
 	pasetoChecker, err := NewPasetoMaker("afik==hgb24sdfeoufcafik==hgb24sd")
 	if err != nil {
-		return err
+		return "", err
 	}
 	payload, err := pasetoChecker.VerifyToken(token)
 	if err != nil {
-		return err
+		return "", err
 	}
 	log.Println("Token valid: " + payload.Username + " " + payload.ID.String())
-	return nil
+	return payload.Role, nil
 }
 
 func ResetPasswordRequest(pwrq *PasswordResetRequest, db *sql.DB, sender sender.ISender) (string, error) {

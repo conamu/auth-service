@@ -117,12 +117,20 @@ func ValidateHandlerFunc() func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(400)
 			return
 		}
-		err = auth.ValidateToken(validationRequest.Token)
+		role, err := auth.ValidateToken(validationRequest.Token)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(401)
 		}
+		res := &auth.ValidationResponse{Role: role}
+		data, err := json.MarshalIndent(res, "", " ")
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(500)
+			return
+		}
 		w.WriteHeader(200)
+		w.Write(data)
 	}
 }
 
