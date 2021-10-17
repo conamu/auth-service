@@ -1,7 +1,6 @@
 version: "3"
 
 services:
-
   karl-bock-auth-service:
     image: gitlab.ho-me.zone:5003/karl-bock-uni/auth-service:latest
     container_name: kb-auth-service
@@ -9,16 +8,15 @@ services:
     hostname: auth-service
     depends_on:
       - karl-bock-auth-service-db
-    ports:
-      - 8080:8080
     security_opt:
       - no-new-privileges:true
     networks:
+      - mainprod
       - friendzone
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.kb-auth.service=kb-auth"
-      - "traefik.docker.network=friendzone"
+      - "traefik.docker.network=mainprod"
       - "traefik.tcp.routers.kb-auth.tls=true"
       - "traefik.http.routers.kb-auth.entrypoints=websecure"
       - "traefik.http.services.kb-auth.loadbalancer.server.port=8080"
@@ -31,8 +29,6 @@ services:
     container_name: kb-auth-db
     restart: always
     hostname: auth-service-db
-    ports:
-      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: einstein
       MYSQL_DATABASE: auth
@@ -42,8 +38,8 @@ services:
       - no-new-privileges:true
     networks:
       - friendzone
-
-
 networks:
+  mainprod:
+    external: true
   friendzone:
     external: false
