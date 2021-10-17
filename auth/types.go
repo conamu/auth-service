@@ -4,7 +4,7 @@ type UserRequest struct {
 	User       string `json:"user"`
 	Password   string `json:"password"`
 	Email      string `json:"email"`
-	Permission string `json:"permission"`
+	Permission string `json:"role"`
 }
 
 type ValidateRequest struct {

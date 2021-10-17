@@ -171,3 +171,7 @@ func PerformPasswordReset(pwReset *PasswordReset, db *sql.DB, sender sender.ISen
 	}
 	return nil
 }
+
+func ValidateUser(user *UserRequest) error {
+	return nil
+}
