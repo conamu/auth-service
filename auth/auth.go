@@ -13,7 +13,9 @@ import (
 )
 
 func RegisterUser(user *UserRequest, db *sql.DB, sender sender.ISender) error {
-
+	if err := ValidateUser(user); err != nil {
+		return err
+	}
 	hash, err := hashing.BcryptHash([]byte(user.Password))
 	if err != nil {
 		return err
@@ -173,5 +175,17 @@ func PerformPasswordReset(pwReset *PasswordReset, db *sql.DB, sender sender.ISen
 }
 
 func ValidateUser(user *UserRequest) error {
+	if user.User == "" {
+		return errors.New("Username is empty!")
+	}
+	if user.Email == "" {
+		return errors.New("Email is empty!")
+	}
+	if user.Password == "" {
+		return errors.New("Password is empty!")
+	}
+	if user.Permission == "" {
+		return errors.New("Role is empty!")
+	}
 	return nil
 }
