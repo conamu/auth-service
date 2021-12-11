@@ -33,7 +33,6 @@ Login:
 /login | responds 200 OK if logged in
 Payload:
 {
-    "user": "USERNAME",
     "password": "PASSWORD",
     "email": "EMAIL"
 }

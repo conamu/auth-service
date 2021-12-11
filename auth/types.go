@@ -1,10 +1,10 @@
 package auth
 
 type UserRequest struct {
-	User       string `json:"user"`
+	User       string `json:"user,omitempty"`
 	Password   string `json:"password"`
 	Email      string `json:"email"`
-	Permission string `json:"role"`
+	Permission string `json:"role,omitempty"`
 }
 
 type ValidateRequest struct {
