@@ -9,6 +9,8 @@ services:
   - docker:dind
 
 build:
+  image:
+    name: jdrouet/docker-with-buildx:stable
   stage: build
   tags:
     - docker
@@ -24,6 +26,8 @@ build:
     - echo "Logging in to Docker registry..."
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - echo "Building Docker Image..."
+    - docker buildx create --name armbuilder --use
+    - docker buildx build --platform linux/arm64 --tag $CI_REGISTRY_IMAGE:latest-arm64 --push -f Dockerfile.arm64 .
     - docker build --tag $CI_REGISTRY_IMAGE:latest .
     - echo "Pushing Image to Registry!"
     - docker push $CI_REGISTRY_IMAGE:latest
