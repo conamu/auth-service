@@ -43,7 +43,7 @@ func SignUpHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 		err = auth.RegisterUser(userRequest, db, sender)
 		if err != nil {
 			log.Println(err.Error())
-			w.WriteHeader(401)
+			w.WriteHeader(400)
 		}
 		w.WriteHeader(201)
 	}
