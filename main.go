@@ -45,7 +45,7 @@ func main() {
 		User:   "kb-auth",
 		Passwd: "kb-auth",
 		Net:    "tcp",
-		Addr:   "auth-service-db:3306",
+		Addr:   "kb-auth-service-db:3306",
 		DBName: "auth",
 	}
 
