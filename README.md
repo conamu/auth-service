@@ -20,7 +20,7 @@ X-KBU-Auth: abcdefghijklmnopqrstuvwxyz
 #### POST
 Registration:
 ```
-/register | responds 201 CREATED if successfull
+/register | responds 201 CREATED if successfull | responds 418 if email already exists
 Payload:
 {
     "user": "USERNAME",
