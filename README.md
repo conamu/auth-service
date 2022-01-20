@@ -25,6 +25,7 @@ Payload:
 {
     "user": "USERNAME",
     "password": "PASSWORD",
+    "role": "ROLE",
     "email": "EMAIL"
 }
 ```
