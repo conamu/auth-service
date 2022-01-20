@@ -49,6 +49,10 @@ Payload:
 {
     "token": "PASETO TOKEN"
 }
+Response:
+{
+    "role": "USER_ROLE"
+}
 ```
 Password Reset Request:
 ```
