@@ -187,5 +187,8 @@ func ValidateUser(user *UserRequest) error {
 	if user.Permission == "" {
 		return errors.New("Role is empty!")
 	}
+	if user.Permission != "admin" && user.Permission != "user" {
+		return errors.New("Wrong role specified on Signup!")
+	}
 	return nil
 }

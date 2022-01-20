@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func SignUpHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +44,9 @@ func SignUpHandlerFunc(db *sql.DB, sender sender.ISender) func(w http.ResponseWr
 		err = auth.RegisterUser(userRequest, db, sender)
 		if err != nil {
 			log.Println(err.Error())
+			if strings.Contains(err.Error(), "Duplicate") {
+				w.WriteHeader(418)
+			}
 			w.WriteHeader(400)
 		}
 		w.WriteHeader(201)
