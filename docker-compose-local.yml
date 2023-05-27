@@ -7,10 +7,10 @@ services:
     container_name: kb-auth-service
     restart: always
     hostname: auth-service
-    depends_on:
+    links:
       - karl-bock-auth-service-db
     ports:
-      - 8081:8080
+      - 8080:8080
     security_opt:
       - no-new-privileges:true
     networks:

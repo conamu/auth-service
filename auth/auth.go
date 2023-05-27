@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"gitlab.ho-me.zone/conamu/base-tools/util"
-	"gitlab.ho-me.zone/conamu/base-tools/v2/hashing"
 	"log"
 	"strconv"
 	"time"
+
+	"gitlab.ho-me.zone/conamu/base-tools/util"
+	"gitlab.ho-me.zone/conamu/base-tools/v2/hashing"
 )
 
 func RegisterUser(user *UserRequest, db *sql.DB, sender sender.ISender) error {
@@ -18,17 +19,17 @@ func RegisterUser(user *UserRequest, db *sql.DB, sender sender.ISender) error {
 	}
 	hash, err := hashing.BcryptHash([]byte(user.Password))
 	if err != nil {
-		return err
+		return errors.Join(errors.New("error in hashing"), err)
 	}
 
 	query := `INSERT INTO USERS (USERNAME, PASSWORD, EMAIL, PERMISSION) VALUES (?,?,?,?);`
 	_, err = db.Exec(query, user.User, hash, user.Email, user.Permission)
 	if err != nil {
-		return err
+		return errors.Join(errors.New("error in database client"), err)
 	}
 	err = sender.SendWelcome(user.User, user.Email, "Welcome")
 	if err != nil {
-		return err
+		return errors.Join(errors.New("error in mail sender"), err)
 	}
 
 	return nil
