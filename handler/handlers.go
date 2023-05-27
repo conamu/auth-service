@@ -89,6 +89,7 @@ func LogInHandlerFunc(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		data, err := json.MarshalIndent(&token, "", " ")
 		w.WriteHeader(http.StatusOK)
@@ -128,6 +129,7 @@ func ValidateHandlerFunc() func(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		res := &auth.ValidationResponse{Role: role}
 		data, err := json.MarshalIndent(res, "", " ")
