@@ -14,6 +14,7 @@ services:
     security_opt:
       - no-new-privileges:true
     networks:
+      - mainprod
       - friendzone
 
   karl-bock-auth-service-db:
@@ -35,5 +36,7 @@ services:
 
 
 networks:
+  mainprod:
+    external: true
   friendzone:
     external: false
