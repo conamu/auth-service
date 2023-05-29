@@ -18,12 +18,6 @@ import (
 var userDbInitQuery = `CREATE TABLE IF NOT EXISTS USERS (USERNAME VARCHAR(30) NOT NULL, PASSWORD VARCHAR(120) NOT NULL, EMAIL VARCHAR(30) NOT NULL PRIMARY KEY, PERMISSION VARCHAR(10) NOT NULL);`
 var passwordResetDBInitQuery = `CREATE TABLE IF NOT EXISTS PWRESETS(EMAIL VARCHAR(30) NOT NULL, RESETID VARCHAR(30) NOT NULL PRIMARY KEY);`
 
-type Server struct {
-	sender sender.ISender
-	router http.Handler
-	db     *sql.DB
-}
-
 func main() {
 	log.Println("Waiting for DB to be up...")
 	time.Sleep(time.Second * 3)
@@ -93,7 +87,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Methods", "POST")
 			w.Header().Set("Access-Control-Max-Age", "86400")
 			w.Header().Set("Access-Control-Allow-Headers",
-				"content-type,x-kbu-auth,content-length")
+				"content-type,x-kbu-auth,content-length,x-kbu-login")
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}

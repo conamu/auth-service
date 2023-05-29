@@ -25,5 +25,12 @@ type PasswordResetResponse struct {
 }
 
 type ValidationResponse struct {
+	User string `json:"user"`
 	Role string `json:"role"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+	User  string `json:"user"`
+	Role  string `json:"role"`
 }

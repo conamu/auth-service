@@ -85,13 +85,13 @@ func LogInHandlerFunc(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Println(userRequest)
-		token, err := auth.LoginUser(userRequest, db)
+		loginResponse, err := auth.LoginUser(userRequest, db)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		data, err := json.MarshalIndent(&token, "", " ")
+		data, err := json.MarshalIndent(loginResponse, "", " ")
 		w.WriteHeader(http.StatusOK)
 		w.Write(data)
 	}
@@ -125,13 +125,16 @@ func ValidateHandlerFunc() func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		role, err := auth.ValidateToken(validationRequest.Token)
+		payload, err := auth.ValidateToken(validationRequest.Token)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		res := &auth.ValidationResponse{Role: role}
+		res := &auth.ValidationResponse{
+			Role: payload.Role,
+			User: payload.Username,
+		}
 		data, err := json.MarshalIndent(res, "", " ")
 		if err != nil {
 			log.Println(err.Error())

@@ -35,7 +35,7 @@ func RegisterUser(user *UserRequest, db *sql.DB, sender sender.ISender) error {
 	return nil
 }
 
-func LoginUser(user *UserRequest, db *sql.DB) (string, error) {
+func LoginUser(user *UserRequest, db *sql.DB) (*LoginResponse, error) {
 	var (
 		username   string
 		password   string
@@ -46,13 +46,13 @@ func LoginUser(user *UserRequest, db *sql.DB) (string, error) {
 
 	rows, err := db.Query(query, user.Email)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&username, &password, &email, &permission)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 	log.Println("User found: " + username + email + permission)
@@ -62,37 +62,41 @@ func LoginUser(user *UserRequest, db *sql.DB) (string, error) {
 		Email:    email,
 	}
 	if readUser.Email != user.Email {
-		return "", errors.New("email does not match to entry")
+		return nil, errors.New("email does not match to entry")
 	}
 	err = hashing.BcryptComparePassword([]byte(user.Password), []byte(readUser.Password))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	pasetoGen, err := NewPasetoMaker("afik==hgb24sdfeoufcafik==hgb24sd")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	token, err := pasetoGen.CreateToken(readUser.User, permission, time.Hour*1)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	log.Println("User logged in, generating PASETO Token")
-	return token, nil
+	return &LoginResponse{
+		Token: token,
+		User:  username,
+		Role:  permission,
+	}, nil
 }
 
-func ValidateToken(token string) (string, error) {
+func ValidateToken(token string) (*Payload, error) {
 	pasetoChecker, err := NewPasetoMaker("afik==hgb24sdfeoufcafik==hgb24sd")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	payload, err := pasetoChecker.VerifyToken(token)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	log.Println("Token valid: " + payload.Username + " " + payload.ID.String())
-	return payload.Role, nil
+	return payload, nil
 }
 
 func ResetPasswordRequest(pwrq *PasswordResetRequest, db *sql.DB, sender sender.ISender) (string, error) {

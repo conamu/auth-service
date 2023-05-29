@@ -41,6 +41,8 @@ Payload:
 Response:
 {
     "token": "PASETO TOKEN"
+    "user": "USERNAME"
+    "role": "ROLE"
 }
 ```
 Token validation:
@@ -53,6 +55,7 @@ Payload:
 Response:
 {
     "role": "USER_ROLE"
+    "user": "USERNAME"
 }
 ```
 Password Reset Request:
